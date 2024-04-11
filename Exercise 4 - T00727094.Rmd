@@ -1,0 +1,186 @@
+---
+title: 'Exercise 4: CV and Bootstrap problems'
+author: "Thai pham- T00727094"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# QUESTION 1
+• Write your own R-code for cross-validation technique (10-fold, LOOCV) in linear regression problem
+from scratch and use it to a Auto data from ISLR package in R.
+– Load the Auto data and remove the last variable (name) to create a new data and use it to do
+the above task. Use the code to load data:
+data(Auto, package="ISLR")
+• In Auto data, mpg is your outcome variable
+• Select the significant variables first by fitting the linear regression model and use these predictors in
+cross-validation
+• Evaluate the model performance (compute the CV error)
+
+
+```{r}
+# Load the data
+library(ISLR)
+data(Auto, package="ISLR")
+head(Auto)
+names(Auto)
+
+# Remove the last variable (name)
+Auto_new <- Auto[, -ncol(Auto)]
+```
+
+```{r}
+# Fitting the linear regression model with the outcome is mpg
+lm_model <- lm(mpg ~ ., data = Auto_new)
+summary(lm_model)
+```
+
+```{r}
+# Choose significant variables
+significant_predictors <- c("displacement", "weight", "year", "origin")
+
+# Use only significant predictors for cross-validation
+Auto_subset <- Auto_new[, c("mpg", significant_predictors)]
+```
+
+## a. 10- fold CV techinique (applied on the Auto_subset data)
+```{r}
+# Function to perform linear regression
+perform_linear_regression <- function(train_data, test_data) {
+  lm_model <- lm(mpg ~ ., data = train_data)
+  predicted <- predict(lm_model, newdata = test_data)
+  return(predicted)
+}
+
+# Function to calculate Mean Squared Error (MSE)
+calculate_mse <- function(actual, predicted) {
+  mse <- mean((actual - predicted)^2)
+  return(mse)
+}
+
+# Function to perform 10-fold cross-validation
+cross_validation_10fold <- function(data) {
+  set.seed(123)  # For reproducibility
+  folds <- cut(seq(1, nrow(data)), breaks = 10, labels = FALSE)
+  mse_scores <- numeric(10)
+  
+  for (i in 1:10) {
+    test_indices <- which(folds == i)
+    train_data <- data[-test_indices, ]
+    test_data <- data[test_indices, ]
+    
+    predicted <- perform_linear_regression(train_data, test_data)
+    mse_scores[i] <- calculate_mse(test_data$mpg, predicted)
+  }
+  
+  avg_mse <- mean(mse_scores)
+  return(avg_mse)
+}
+
+# Perform 10-fold CV
+mse_10fold <- cross_validation_10fold(Auto_subset)
+cat("Average MSE (10-fold cross-validation):", mse_10fold, "\n")
+```
+## b. LOOCV technique (applied on the Auto_subset data)
+```{r}
+# Function to perform linear regression
+perform_linear_regression <- function(train_data, test_data) {
+  lm_model <- lm(mpg ~ ., data = train_data)
+  predicted <- predict(lm_model, newdata = test_data)
+  return(predicted)
+}
+
+# Function to calculate Mean Squared Error (MSE)
+calculate_mse <- function(actual, predicted) {
+  mse <- mean((actual - predicted)^2)
+  return(mse)
+}
+
+# Function to perform Leave-One-Out Cross-Validation (LOOCV)
+loocv <- function(data) {
+  n <- nrow(data)
+  mse_scores <- numeric(n)
+  
+  for (i in 1:n) {
+    train_data <- data[-i, ]
+    test_data <- data[i, ]
+    
+    predicted <- perform_linear_regression(train_data, test_data)
+    mse_scores[i] <- calculate_mse(test_data$mpg, predicted)
+  }
+  
+  avg_mse <- mean(mse_scores)
+  return(avg_mse)
+}
+
+# Perform LOOCV
+mse_loocv <- loocv(Auto_subset)
+cat("Average MSE (LOOCV):", mse_loocv, "\n")
+```
+# QUESTION 2
+Suppose we have a population which is generated from a Poisson ($\lambda = 2.3$) distribution with pdf 
+$$f(x)=\frac{e^{-\lambda}\lambda^{x}}{x!}$$ 
+We know that the MLE of $\lambda$ in Poisson distribution is the sample mean $\frac{1}{n} \Sigma_{i=1}^{n} x_{i}$ of n observations in the sample.
+Do bootstraping (B = 1000) to see the variability of the MLE as an estimator of the Poisson parameter ($\lambda = 2.3$) for n = 100 by writing you own function. Calculate the bootstrap bias and bootstrap standard error
+of the bootstrap estimates of MLE. Also calculate the 95% bootstrap percentile confidence interval (you can
+use quantile function).
+
+```{r, message = FALSE}
+pkg_list <- c("dplyr", "caret", "boot","calibrate") 
+# Install packages if needed
+for (pkg in pkg_list)
+{
+  # Try loading the library.
+  if ( ! library(pkg, logical.return=TRUE, character.only=TRUE) )
+    {
+         # If the library cannot be loaded, install it; then load.
+        install.packages(pkg)
+        library(pkg, character.only=TRUE)
+  }
+}
+```
+
+```{r}
+# Define the Statistic function to calculate sample mean
+sample_mean <- function(Population) {
+  return(mean(Population))
+}
+
+# Define the boot.approx function
+boot.approx <- function(Population, Statistic, B, n) {
+  out <- numeric(B)
+  for (b in 1:B) {
+    sample_data <- sample(Population, n, replace = TRUE)
+    out[b] <- Statistic(sample_data)
+  }
+  return(out)
+}
+
+# Generate Population from a Poisson distribution with lambda = 2.3
+set.seed(1) # For reproducibility
+Population <- rpois(10000, lambda = 2.3)
+
+# Perform bootstrap resampling
+B <- 1000
+n <- 100
+bootstrap_means <- boot.approx(Population, sample_mean, B, n)
+
+# Calculate bootstrap bias and standard error
+bootstrap_bias <- mean(bootstrap_means) - 2.3
+bootstrap_standard_error <- sd(bootstrap_means)
+
+# Calculate 95% bootstrap percentile confidence interval
+bootstrap_conf_interval <- quantile(bootstrap_means, c(0.025, 0.975))
+
+# Print results
+cat("Bootstrap bias:", bootstrap_bias, "\n")
+cat("Bootstrap standard error:", bootstrap_standard_error, "\n")
+cat("95% Bootstrap percentile confidence interval:", 
+    bootstrap_conf_interval[1], "-", bootstrap_conf_interval[2], "\n")
+
+```
+
+

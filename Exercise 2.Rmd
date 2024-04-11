@@ -1,0 +1,185 @@
+---
+title: "Exercise 2"
+author: "Pham Thi Thai - T00727094"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# 1. INTRODUCTION
+My name is Pham Thi Thai. I was a dedicated mathematics educator at the high school level with a robust academic foundation. I hold a Master's degree in Mathematics, specializing in Analysis. My research interests are centered around leveraging analytical techniques for data exploration, particularly within the domains of finance and education.
+
+# 2. DATA VISUALIZATION
+```{r}
+# Loading packages
+library(tidyverse)
+library(palmerpenguins)
+library(ggthemes)
+```
+
+```{r}
+# The penguins data frame
+tibble(penguins)
+```
+
+```{r}
+# Creating a ggplot
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point()
+
+```
+```{r}
+# Adding aesthetics and layers
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point()
+```
+```{r}
+# Drawing the line of best fit
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+```{r}
+# Drawing the unseperated line of best fit
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = "lm")
+```
+```{r}
+# Different shapes plot
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = "lm")
+```
+```{r}
+# Enhancing a perfect plot 
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)", y = "Body mass (g)",
+    color = "Species", shape = "Species"
+  ) +
+  scale_color_colorblind()
+```
+```{r}
+# Visualizing distributions
+# Barchart with non-ordered levels
+ggplot(penguins, aes(x = species)) +
+  geom_bar()
+```
+```{r}
+# Barchart with ordered levels
+ggplot(penguins, aes(x = fct_infreq(species))) +
+  geom_bar()
+```
+```{r}
+# Histogram
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(binwidth = 200)
+```
+```{r}
+# Histograms with different binwidths
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(binwidth = 20)
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(binwidth = 2000)
+```
+```{r}
+# Density plot
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_density()
+#> Warning: Removed 2 rows containing non-finite values (`stat_density()`).
+```
+```{r}
+# Visualizing relationships
+# Boxplot
+ggplot(penguins, aes(x = species, y = body_mass_g)) +
+  geom_boxplot()
+```
+```{r}
+# Density plots
+ggplot(penguins, aes(x = body_mass_g, color = species)) +
+  geom_density(linewidth = 0.75)
+```
+```{r}
+# Adding transparency to the filled density curves
+ggplot(penguins, aes(x = body_mass_g, color = species, fill = species)) +
+  geom_density(alpha = 0.5)
+```
+```{r}
+# Stacked bar plots
+# The frequencies of each species of penguins on each island
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar()
+```
+
+```{r}
+# A relative frequency plot 
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar(position = "fill")
+```
+```{r}
+# Scatterplot of three or more variables
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = island))
+```
+```{r}
+# Facets (subplots that each display one subset of the data)
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  facet_wrap(~island)
+```
+
+
+# 3. STOCK PRICE DATA
+```{r}
+# Loading the data
+mydata <- read.csv("AMZN.csv")
+```
+```{r}
+# Print out the first observations
+head(mydata)
+```
+```{r}
+# Print out the last observations
+tail(mydata)
+```
+```{r}
+# Convert the 'Date' column to a Date type
+mydata$Date <- as.Date(mydata$Date)
+```
+```{r}
+# Create a time series plot
+ggplot(mydata, aes(x = Date, y = Close)) +
+  geom_line(color="blue") +
+  labs(title = "Stock Price Time Series",
+       x = "Date",
+       y = "Stock Price")
+```
+
+
