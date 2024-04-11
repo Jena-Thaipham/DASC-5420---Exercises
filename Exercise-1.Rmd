@@ -1,0 +1,167 @@
+---
+title: "Exercise 1"
+author: "Pham Thi Thai - T00727094"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+# The Iris Flower Dataset
+head(iris)
+```
+```{r}
+# Numeric summaries
+mean <- lapply(iris[, 1:4], mean)
+sd <- lapply(iris[, 1:4], sd)
+mean(iris$Sepal.Length)
+
+```
+
+```{r}
+cbind (mean, sd)
+```
+```{r}
+summary(iris$Species)
+```
+```{r}
+# Simple graph
+plot (iris$Sepal.Width, iris$Sepal.Length)
+```
+```{r}
+# Graph using ggplot2
+library(ggplot2)
+ggplot(data=iris) + 
+geom_point(aes(x = Sepal.Width, y = Sepal.Length, 
+               color=Species, shape=Species)) +
+xlab("Sepal Width") +  
+ylab("Sepal Length") +
+ggtitle("Sepal Length-Width")
+```
+```{r}
+# Histogram
+library (ggplot2)
+ggplot (data = iris) +
+  geom_histogram (aes(x = Sepal.Width), color = "blue", 
+                  fill = "light blue", bins = 10) +
+  xlab("Sepal Width") +  ggtitle("Histogram of Sepal Width")
+```
+```{r}
+# Barchart
+library (ggplot2)
+ggplot (data = iris) +
+  geom_bar (aes(x = Species, fill = Species)) +
+  xlab("Species") + ggtitle("Bar Chart of Species")
+```
+
+```{r}
+# Boxplot
+library (ggplot2)
+ggplot (data = iris) +
+  geom_boxplot (aes(x = Species, y = Sepal.Length, fill = Species)) +
+  xlab ("Species") + ylab("Sepal Length") +  
+  ggtitle("Boxplot of Sepal Length for Species")
+```
+```{r}
+# Scatterplots
+library(ggplot2)
+ggplot(data=iris, aes(x = Sepal.Width, y = Sepal.Length, 
+                      color=Species, shape=Species)) + 
+geom_point() +
+geom_smooth(method=lm, se=TRUE, fullrange=TRUE) +
+xlab("Sepal Width") + ylab("Sepal Length") +
+ggtitle("Sepal Length-Width Scatterplot")
+
+```
+```{r}
+# Scatterplots
+library(ggplot2)
+ggplot(data=iris, aes(x = Sepal.Width, y = Sepal.Length, 
+                      color=Species, shape=Species)) + 
+geom_point() +
+geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+xlab("Sepal Width") + ylab("Sepal Length") +
+ggtitle("Sepal Length-Width Scatterplot")
+```
+
+
+```{r}
+
+library(ggplot2)
+ggplot(data=iris, aes(x = Sepal.Width, y = Sepal.Length, 
+                      color=Species, shape=Species)) + 
+geom_point() +
+xlab("Sepal Width") + 
+ylab("Sepal Length") +
+ggtitle("Sepal Length-Width Scatterplot") +
+facet_grid(cols = vars (Species))+
+geom_smooth()
+```
+```
+
+```{r}
+# Date in R
+xd <- as.Date("2012-07-27")
+weekdays(xd)
+```
+```{r}
+# Install and load package for financial data
+pkg_list = c('quantmod', 'zoo', 'tseries', 'PEIP','gridExtra','moments')
+# Install packages if needed
+for (pkg in pkg_list)
+{
+  # Try loading the library.
+  if ( ! library(pkg, logical.return=TRUE, character.only=TRUE) )
+    {
+         # If the library cannot be loaded, install it; then load.
+        install.packages(pkg)
+        library(pkg, character.only=TRUE)
+  }
+}
+```
+
+
+```{r}
+# Stock Prices
+start.date = '2019-12-1' # starting date of stock
+end.date = '2022-12-1' # ending date of stock
+# Download the selected stocks from Yahoo finance
+getSymbols(c('AAPL','MSFT','IBM', "GOOG","AMZN","TSLA"), 
+              src = "yahoo", from = start.date, to = end.date)
+stocks <- merge(AAPL = AAPL[, "AAPL.Adjusted"], MSFT = MSFT[, "MSFT.Adjusted"], 
+                IBM = IBM[, "IBM.Adjusted"], GOOG = GOOG[, "GOOG.Adjusted"],
+                AMZN = AMZN[, "AMZN.Adjusted"], TSLA = TSLA[, "TSLA.Adjusted"])
+
+names(stocks )<-c("Price.APPLE","Price.MSFT","Price.IBM","Price.GOOG",
+                  "Price.AMZN","Price.TSLA")
+```
+```{r}
+# Data
+options(width = 70)
+head(stocks)
+```
+```{r}
+tail(stocks)
+```
+```{r}
+nrow(stocks)
+```
+```{r}
+# Plot Stock Prices
+plot(stocks, legend.loc=1)
+```
+
+```{r}
+# Log Returns
+return.cc = diff(log(stocks)) #calculate log returns
+plot(return.cc, legend.loc=1)
+```
+```{r}
+
+```
+
+
